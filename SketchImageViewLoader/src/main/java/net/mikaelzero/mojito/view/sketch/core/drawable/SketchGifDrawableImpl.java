@@ -25,8 +25,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import net.mikaelzero.mojito.view.sketch.core.cache.BitmapPool;
-import net.mikaelzero.mojito.view.sketch.core.cache.BitmapPoolUtils;
 import net.mikaelzero.mojito.view.sketch.core.decode.ImageAttrs;
 import net.mikaelzero.mojito.view.sketch.core.request.ImageFrom;
 import net.mikaelzero.mojito.view.sketch.core.util.SketchUtils;
@@ -44,7 +42,6 @@ import pl.droidsonroids.gif.GifDrawable;
 /**
  * 增加了从BitmapPool中寻找可复用Bitmap的功能以及图片的信息
  */
-// SketchGifDrawableImpl类配置了混淆时忽略警告，以后内部类有变化时需要同步调整混淆配置，并打包验证
 public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawable {
     private static final String NAME = "SketchGifDrawableImpl";
 
@@ -158,27 +155,6 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
     }
 
     @Override
-    protected Bitmap makeBitmap(int width, int height, Bitmap.Config config) {
-        if (bitmapPool != null) {
-            return bitmapPool.getOrMake(width, height, config);
-        }
-        return super.makeBitmap(width, height, config);
-    }
-
-    @Override
-    protected void recycleBitmap() {
-        if (mBuffer == null) {
-            return;
-        }
-
-        if (bitmapPool != null) {
-            BitmapPoolUtils.freeBitmapToPool(mBuffer, bitmapPool);
-        } else {
-            super.recycleBitmap();
-        }
-    }
-
-    @Override
     public String getKey() {
         return key;
     }
@@ -215,8 +191,9 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
 
     @Override
     public String getInfo() {
+        Bitmap currentBitmap = getBitmap();
         return SketchUtils.makeImageInfo(NAME, getOriginWidth(), getOriginHeight(), getMimeType(),
-                getExifOrientation(), mBuffer, getAllocationByteCount(), null);
+                getExifOrientation(), currentBitmap, getAllocationByteCount(), null);
     }
 
     @Override
@@ -226,7 +203,8 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
 
     @Override
     public Bitmap.Config getBitmapConfig() {
-        return mBuffer != null ? mBuffer.getConfig() : null;
+        Bitmap currentBitmap = getBitmap();
+        return currentBitmap != null ? currentBitmap.getConfig() : null;
     }
 
     @Override
@@ -235,7 +213,6 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
             listenerMap = new HashMap<>();
         }
 
-        // 这个内部类配置了混淆时忽略警告，以后有变化时需要同步调整混淆配置，并打包验证
         pl.droidsonroids.gif.AnimationListener animationListener = new pl.droidsonroids.gif.AnimationListener() {
             @Override
             public void onAnimationCompleted(int loopNumber) {
@@ -262,7 +239,6 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
             start();
         } else {
             if (fromDisplayCompleted) {
-                // 图片加载完了，但是页面还不可见的时候就停留着在第一帧
                 seekToFrame(0);
                 stop();
             } else {
