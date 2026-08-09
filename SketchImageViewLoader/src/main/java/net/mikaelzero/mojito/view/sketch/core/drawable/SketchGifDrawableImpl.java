@@ -49,6 +49,7 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
     private String uri;
     private ImageAttrs imageAttrs;
     private ImageFrom imageFrom;
+    private Map<AnimationListener, pl.droidsonroids.gif.AnimationListener> listenerMap;
 
     SketchGifDrawableImpl(String key, String uri, ImageAttrs imageAttrs, ImageFrom imageFrom,
                           AssetFileDescriptor afd) throws IOException {
