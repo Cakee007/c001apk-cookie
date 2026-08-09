@@ -178,7 +178,7 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
 
     @Override
     public String getInfo() {
-        Bitmap currentBitmap = getBitmap();
+        Bitmap currentBitmap = getCurrentFrame();
         return SketchUtils.makeImageInfo(NAME, getOriginWidth(), getOriginHeight(), getMimeType(),
                 getExifOrientation(), currentBitmap, getAllocationByteCount(), null);
     }
@@ -190,7 +190,7 @@ public class SketchGifDrawableImpl extends GifDrawable implements SketchGifDrawa
 
     @Override
     public Bitmap.Config getBitmapConfig() {
-        Bitmap currentBitmap = getBitmap();
+        Bitmap currentBitmap = getCurrentFrame();
         return currentBitmap != null ? currentBitmap.getConfig() : null;
     }
 
